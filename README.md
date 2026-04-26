@@ -1,101 +1,137 @@
 # UPM Image Collector
 
-A production-quality Python pipeline that downloads face images from
-[thispersondoesnotexist.com](https://thispersondoesnotexist.com/) and saves
-them to local storage as a timestamped dataset.  The pipeline accepts a future
-**target time** and distributes all downloads randomly across the **10-minute
-window immediately before** that time, recording each image under a
-millisecond-precision UTC filename (`raw_images/YYYYMMDD_HHMMSS_fff.jpg`).
-This makes the dataset self-documenting and collision-free without any
-additional registry.
+UPM Image Collector is a Python pipeline that downloads face images from [thispersondoesnotexist.com](https://thispersondoesnotexist.com/) and stores them locally as a timestamped dataset.
+
+The system accepts a **future target time** and distributes all downloads randomly across the **10-minute window immediately before that time**.
+
+Each image is saved using a UTC timestamp with millisecond precision:
+
+```text
+raw_images/YYYYMMDD_HHMMSS_fff.jpg
+```
+
+Example:
+
+```text
+raw_images/20260426_225103_412.jpg
+```
+
+This keeps every file unique, ordered, and easy to trace.
 
 ---
 
-## Installation
+# Features
 
-Python 3.11 or later is required.
+- Downloads images from a live source
+- Collects images over time instead of all at once
+- Randomized scheduling within the required 10-minute window
+- Millisecond-precision UTC filenames
+- Retry logic with timeout handling
+- CLI interface
+- Dry-run mode for schedule preview
+- Logging and progress tracking
+- Unit tests and CI-ready structure
+
+---
+
+# Installation
+
+Python 3.11+ recommended.
+
+## Clone Repository
 
 ```bash
-# 1. Clone the repository
 git clone <repo-url>
 cd upm-image-collector
+```
 
-# 2. Create and activate a virtual environment
+## Create Virtual Environment
+
+```bash
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+```
 
-# 3. Install the project and all development dependencies
+## Activate Environment
+
+### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+## Install Dependencies
+
+```bash
 pip install -e ".[dev]"
 ```
 
 ---
 
-## Usage
+# Usage
 
-### Collect 100 images
+## Collect 100 Images
 
 ```bash
 image-collector --target 2026-04-26T23:00:00Z
 ```
 
-The command blocks until the 10-minute window opens, then downloads one image
-per scheduled timestamp and prints progress as each file is saved:
+Example output:
 
-```
-2026-04-26T22:51:03  INFO     image_collector.pipeline — [001/100] Saved raw_images/20260426_225103_412.jpg
-2026-04-26T22:51:47  INFO     image_collector.pipeline — [002/100] Saved raw_images/20260426_225147_088.jpg
+```text
+2026-04-26T22:51:03 INFO [001/100] Saved raw_images/20260426_225103_412.jpg
+2026-04-26T22:51:47 INFO [002/100] Saved raw_images/20260426_225147_088.jpg
 ...
 ```
 
-### Dry run — preview the schedule without downloading
+## Preview Schedule Only
 
 ```bash
 image-collector --target 2026-04-26T23:00:00Z --dry-run
 ```
 
-### Custom count and log verbosity
+## Download Custom Number of Images
 
 ```bash
-image-collector --target 2026-04-26T23:00:00Z --count 50 --log-level DEBUG
+image-collector --target 2026-04-26T23:00:00Z --count 50
 ```
 
-### All options
+## Debug Logging
 
-```
-usage: image-collector [-h] --target DATETIME [--count N] [--dry-run]
-                       [--log-level {DEBUG,INFO,WARNING}]
-
-options:
-  --target DATETIME     Future UTC target time in ISO 8601 format,
-                        e.g. 2026-04-26T23:00:00Z
-  --count N             Number of images to download (default: 100)
-  --dry-run             Print the planned schedule without downloading
-  --log-level           Logging verbosity: DEBUG / INFO / WARNING (default: INFO)
+```bash
+image-collector --target 2026-04-26T23:00:00Z --log-level DEBUG
 ```
 
 ---
 
-## Running Tests
+# Running Tests
 
 ```bash
-# Run all tests
 pytest
+```
 
-# With coverage report
+With coverage:
+
+```bash
 pytest --cov=image_collector --cov-report=term-missing
 ```
 
 ---
 
-## Code Quality Checks
+# Code Quality
 
 ```bash
-ruff check .                # linting
-ruff format --check .       # formatting
-mypy src/                   # static type checking
+ruff check .
+ruff format --check .
+mypy src/
 ```
 
-Run all checks at once:
+Run all checks:
 
 ```bash
 ruff check . && ruff format --check . && mypy src/ && pytest
@@ -103,35 +139,47 @@ ruff check . && ruff format --check . && mypy src/ && pytest
 
 ---
 
-## Architecture
+# Project Structure
 
-See [docs/architecture.md](docs/architecture.md) for the full sequence diagram
-and component descriptions.
-
----
-
-## Project Structure
-
-```
+```text
 upm-image-collector/
 ├── src/
 │   └── image_collector/
-│       ├── __init__.py       # package version and exports
-│       ├── downloader.py     # HTTP fetch with retry + exponential back-off
-│       ├── scheduler.py      # random timestamp generation and precision sleep
-│       ├── storage.py        # millisecond filename generation and file writing
-│       └── pipeline.py       # CLI entry point, orchestrates the pipeline
+│       ├── __init__.py
+│       ├── downloader.py
+│       ├── scheduler.py
+│       ├── storage.py
+│       └── pipeline.py
 ├── tests/
-│   ├── test_downloader.py
-│   ├── test_scheduler.py
-│   └── test_storage.py
 ├── docs/
-│   └── architecture.md       # system diagram (Mermaid)
-├── .github/
-│   └── workflows/
-│       └── ci.yml            # GitHub Actions: lint + type-check + test
+├── .github/workflows/
 ├── pyproject.toml
 ├── README.md
-├── .gitignore
-└── CLAUDE.md
+└── .gitignore
 ```
+
+---
+
+# Reliability Considerations
+
+- Retry handling for temporary network failures
+- Timeout protection
+- Unique filenames
+- Structured logs
+- Modular architecture
+
+---
+
+# Future Improvements
+
+- Parallel downloads
+- Metadata export
+- Resume interrupted runs
+- Docker packaging
+- Cloud storage support
+
+---
+
+# License
+
+For assessment / educational use.
