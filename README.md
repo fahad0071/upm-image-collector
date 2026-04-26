@@ -41,7 +41,7 @@ Python 3.11+ recommended.
 ## Clone Repository
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/fahad0071/upm-image-collector
 cd upm-image-collector
 ```
 
