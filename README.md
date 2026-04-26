@@ -139,6 +139,12 @@ ruff check . && ruff format --check . && mypy src/ && pytest
 
 ---
 
+## Architecture
+
+The system diagram (sequence + data flow) is in [docs/architecture.md](docs/architecture.md).
+
+---
+
 # Project Structure
 
 ```text
@@ -146,13 +152,24 @@ upm-image-collector/
 ├── src/
 │   └── image_collector/
 │       ├── __init__.py
-│       ├── downloader.py
-│       ├── scheduler.py
-│       ├── storage.py
-│       └── pipeline.py
+│       ├── downloader.py        
+│       ├── scheduler.py         
+│       ├── storage.py           
+│       └── pipeline.py          
+│
 ├── tests/
+│   ├── test_downloader.py
+│   ├── test_scheduler.py
+│   └── test_storage.py
+│
 ├── docs/
-├── .github/workflows/
+│   └── architecture.md         
+│       └── architecture_diagram.png
+│ 
+├── .github/
+│   └── workflows/
+│       └── ci.yml             
+│
 ├── pyproject.toml
 ├── README.md
 └── .gitignore
