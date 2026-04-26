@@ -79,29 +79,29 @@ scheduler.generate_schedule()
     ▼
   for each timestamp tᵢ:
     │
-    ├─► scheduler.wait_until(tᵢ)   ── blocks until wall clock = tᵢ
+    ├─► scheduler.wait_until(tᵢ): blocks until wall clock = tᵢ
     │
-    ├─► downloader.download_image() ── HTTP GET → bytes
+    ├─► downloader.download_image(): HTTP GET → bytes
     │
-    └─► storage.save_image()        ── bytes → raw_images/YYYYMMDD_HHMMSS_fff.jpg
+    └─► storage.save_image(): bytes → raw_images/YYYYMMDD_HHMMSS_fff.jpg
 ```
 
 ---
 
 ## Key Design Decisions
 
-**No asyncio** — The pipeline is I/O-bound but not latency-sensitive enough to
+**No asyncio**: The pipeline is I/O-bound but not latency-sensitive enough to
 justify async complexity.  A synchronous design is easier to follow, test, and
 debug.
 
-**Exact sleep durations** — `wait_until` calculates a single precise
+**Exact sleep durations**: `wait_until` calculates a single precise
 `time.sleep(delay)` rather than polling in a tight loop, keeping CPU usage
 near zero during the wait.
 
-**Millisecond filenames as the only identity** — Images are ephemeral training
+**Millisecond filenames as the only identity**: Images are ephemeral training
 data; using the capture timestamp as the sole identifier makes the dataset
 self-documenting and avoids collision without a separate registry.
 
-**Retry with exponential back-off** — The source URL is a live website;
+**Retry with exponential back-off**: The source URL is a live website;
 transient failures are expected.  Three attempts with base back-off of 1 s
 (1 s, 2 s, 4 s) balance resilience against total pipeline delay.
