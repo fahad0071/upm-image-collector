@@ -1,6 +1,6 @@
 # UPM Image Collector
 
-UPM Image Collector is a Python pipeline that downloads face images from [thispersondoesnotexist.com](https://thispersondoesnotexist.com/) and stores them locally as a timestamped dataset.
+Image Collector is a Python pipeline that downloads face images from [thispersondoesnotexist.com](https://thispersondoesnotexist.com/) and stores them locally as a timestamped dataset.
 
 The system accepts a **future target time** and distributes all downloads randomly across the **10-minute window immediately before that time**.
 
